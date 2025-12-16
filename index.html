@@ -2,134 +2,631 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>OrthoControl</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrthoControl - Gestión de Pacientes</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+
     :root {
-      --primary: #4e73df;
-      --primary-dark: #2e59d9;
-      --bg: #f8f9fc;
-      --card-bg: #ffffff;
-      --border: #d1d3e2;
-      --text: #4a4a4a;
+      --primary: #2ca3fa;
+      --primary-dark: #0a7ed0;
+      --primary-light: #e0f2ff;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --info: #3b82f6;
+      --light: #f8fafc;
+      --lighter: #ffffff;
+      --dark: #1e293b;
+      --dark-light: #334155;
+      --border: #cbd5e1;
+      --border-light: #e2e8f0;
+      --text: #475569;
+      --text-light: #64748b;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
     }
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    body { margin: 0; background: var(--bg); color: var(--text); }
-    h1,h2,h3 { margin: 0 0 .5rem; }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, h4 {
+      margin: 0 0 0.5rem 0;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    h2 {
+      font-size: 1.1rem;
+    }
+
+    h3 {
+      font-size: 0.95rem;
+    }
+
     .app-container {
       display: grid;
-      grid-template-columns: 280px 1.2fr 1.1fr;
-      gap: 1rem;
-      padding: 1rem;
+      grid-template-columns: 320px 1.3fr 1.2fr;
+      gap: 1.2rem;
+      padding: 1.5rem;
+      min-height: 100vh;
+      max-width: 1600px;
+      margin: 0 auto;
     }
-    @media (max-width: 1024px) {
-      .app-container { grid-template-columns: 1fr; }
+
+    @media (max-width: 1200px) {
+      .app-container {
+        grid-template-columns: 280px 1fr 1fr;
+        gap: 1rem;
+        padding: 1rem;
+      }
     }
+
+    @media (max-width: 768px) {
+      .app-container {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+        padding: 0.8rem;
+      }
+    }
+
     .card {
-      background: var(--card-bg);
-      border-radius: .5rem;
-      padding: 1rem;
-      box-shadow: 0 1px 3px rgba(15,23,42,0.08);
-      border: 1px solid var(--border);
+      background: var(--lighter);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: .75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--primary-light);
     }
-    .card-header h2 { font-size: 1.1rem; }
-    label { display: block; font-size: .8rem; margin-top: .4rem; margin-bottom: .1rem; }
+
+    .card-header h2 {
+      font-size: 1.15rem;
+      flex: 1;
+      font-family: 'Poppins', sans-serif;
+      color: var(--primary-dark);
+    }
+
+    .card-body {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+
+    .card-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .card-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .card-body::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 0.7rem;
+      margin-bottom: 0.3rem;
+      color: var(--dark-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
     input, select, textarea {
       width: 100%;
-      padding: .35rem .45rem;
-      border-radius: .35rem;
-      border: 1px solid var(--border);
-      font-size: .85rem;
+      padding: 0.5rem 0.65rem;
+      border-radius: 0.5rem;
+      border: 1.5px solid var(--border-light);
+      font-size: 0.9rem;
+      background: #fafbfc;
+      font-family: inherit;
+      transition: all 0.2s ease;
     }
-    textarea { resize: vertical; min-height: 48px; }
-    input:focus, select:focus, textarea:focus {
-      outline: 2px solid var(--primary);
+
+    input::placeholder, textarea::placeholder {
+      color: var(--text-light);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+      font-family: inherit;
+    }
+
+    input:hover, select:hover, textarea:hover {
       border-color: var(--primary);
+      background: #ffffff;
     }
-    .row { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; }
-    .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: .35rem;
+      border-radius: 0.5rem;
       border: none;
-      padding: .4rem .6rem;
-      font-size: .8rem;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 600;
       cursor: pointer;
-      gap: .25rem;
+      gap: 0.4rem;
       white-space: nowrap;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-secondary { background: #e2e6ea; color: #333; }
-    .btn-danger { background: #e74a3b; color: white; }
-    .btn-outline { background: transparent; border: 1px solid var(--border); }
-    .btn-sm { padding: .25rem .45rem; font-size: .75rem; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .35rem; }
-    .patient-list { max-height: 70vh; overflow-y: auto; margin-top: .5rem; }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 8px 16px rgba(44, 163, 250, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--border-light);
+      color: var(--dark);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-success:hover {
+      box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-danger:hover {
+      box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-info {
+      background: linear-gradient(135deg, var(--info) 0%, #1e40af 100%);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-info:hover {
+      box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--primary);
+      color: var(--primary);
+      box-shadow: none;
+    }
+
+    .btn-outline:hover {
+      background: var(--primary-light);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.65rem;
+      font-size: 0.75rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .patient-list {
+      max-height: 70vh;
+      overflow-y: auto;
+      margin-top: 0.75rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+
+    .patient-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .patient-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .patient-list::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
+    }
+
     .patient-item {
-      padding: .4rem .5rem;
-      border-radius: .35rem;
-      border: 1px solid transparent;
+      padding: 0.75rem;
+      border-radius: 0.6rem;
+      border: 1.5px solid transparent;
       cursor: pointer;
-      font-size: .8rem;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+      transition: all 0.25s ease;
+      background: var(--light);
     }
-    .patient-item:hover { background: #f1f3f9; }
-    .patient-item.active { border-color: var(--primary); background: #eef2ff; }
-    .badge { display: inline-block; padding: .05rem .3rem; border-radius: 999px; font-size: .65rem; background: #e0e7ff; color: #1d4ed8; }
-    .controls-list { max-height: 260px; overflow-y: auto; margin-top: .5rem; }
+
+    .patient-item:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(44, 163, 250, 0.15);
+      transform: translateX(2px);
+    }
+
+    .patient-item.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 4px 12px rgba(44, 163, 250, 0.25);
+    }
+
+    .patient-name {
+      font-weight: 700;
+      color: var(--dark);
+      font-size: 0.85rem;
+    }
+
+    .patient-meta {
+      font-size: 0.7rem;
+      color: var(--text-light);
+      margin-top: 0.2rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 600;
+      margin-top: 0.3rem;
+    }
+
+    .controls-list {
+      max-height: 320px;
+      overflow-y: auto;
+      margin-top: 0.75rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+
+    .controls-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .controls-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .controls-list::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 3px;
+    }
+
     .control-item {
-      border-radius: .4rem;
-      border: 1px solid var(--border);
-      padding: .4rem;
-      margin-bottom: .35rem;
-      font-size: .78rem;
+      border-radius: 0.6rem;
+      border: 1.5px solid var(--border-light);
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.78rem;
       cursor: pointer;
+      transition: all 0.25s ease;
+      background: var(--light);
     }
-    .control-item.active { border-color: var(--primary); background: #eef2ff; }
-    .section-title { font-weight: 600; margin-top: .5rem; margin-bottom: .25rem; font-size: .85rem; }
-    .small-text { font-size: .72rem; color: #6b7280; }
-    .mt-sm { margin-top: .35rem; }
-    .mt { margin-top: .75rem; }
-    .divider { height: 1px; background: var(--border); margin: .5rem 0; }
-    .photo-preview {
+
+    .control-item:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 4px 12px rgba(44, 163, 250, 0.15);
+      transform: translateX(2px);
+    }
+
+    .control-item.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 4px 12px rgba(44, 163, 250, 0.25);
+    }
+
+    .section-title {
+      font-weight: 700;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .small-text {
+      font-size: 0.7rem;
+      color: var(--text-light);
+      line-height: 1.4;
+    }
+
+    .divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+      margin: 1rem 0;
+    }
+
+    .photo-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit,minmax(90px,1fr));
-      gap: .25rem;
-      margin-top: .35rem;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
     }
-    .photo-preview img {
+
+    .photo-item {
+      position: relative;
+      border-radius: 0.6rem;
+      overflow: hidden;
+      border: 2px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s ease;
+    }
+
+    .photo-item:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .photo-item img {
       width: 100%;
-      border-radius: .3rem;
-      border: 1px solid var(--border);
+      height: 110px;
       object-fit: cover;
-      height: 70px;
+      display: block;
       cursor: pointer;
+      transition: transform 0.3s ease;
     }
-    /* canvas modal simple */
+
+    .photo-item:hover img {
+      transform: scale(1.1);
+    }
+
+    .photo-delete {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 0.35rem;
+      width: 24px;
+      height: 24px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: none;
+      box-shadow: var(--shadow-md);
+      transition: all 0.2s ease;
+    }
+
+    .photo-delete:hover {
+      transform: scale(1.1);
+    }
+
+    .photo-item:hover .photo-delete {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video {
+      width: 100%;
+      max-height: 220px;
+      border-radius: 0.6rem;
+      border: 2px solid var(--border-light);
+      background: #0f172a;
+      margin-top: 0.75rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    canvas {
+      display: none;
+    }
+
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15,23,42,0.55);
+      background: rgba(0, 0, 0, 0.6);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 50;
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.25s ease;
     }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
     .modal {
-      background: white;
-      border-radius: .5rem;
-      padding: .75rem;
-      width: min(520px, 96vw);
+      background: var(--lighter);
+      border-radius: 0.8rem;
+      padding: 1.75rem;
+      width: min(650px, 95vw);
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    canvas { max-width: 100%; border-radius: .35rem; border: 1px solid var(--border); background: #111; }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      font-size: 1.75rem;
+      cursor: pointer;
+      color: var(--text-light);
+      transition: all 0.2s ease;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      color: var(--dark);
+      background: var(--light);
+      border-radius: 0.5rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      border-radius: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-active {
+      background: var(--success-light);
+      color: #166534;
+    }
+
+    .status-inactive {
+      background: var(--danger-light);
+      color: #991b1b;
+    }
+
+    .crop-canvas {
+      max-width: 100%;
+      border: 3px dashed var(--primary);
+      margin-top: 1rem;
+      cursor: crosshair;
+      border-radius: 0.6rem;
+      background: var(--light);
+    }
+
+    .crop-info {
+      background: var(--warning-light);
+      padding: 0.75rem;
+      border-radius: 0.6rem;
+      border: 1px solid var(--warning);
+      font-size: 0.75rem;
+      margin-top: 0.75rem;
+      color: #92400e;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -137,260 +634,293 @@
     <!-- PANEL IZQUIERDO: PACIENTES -->
     <section class="card">
       <div class="card-header">
-        <h2>Pacientes</h2>
-        <button class="btn btn-primary btn-sm" id="btnNuevoPaciente">Nuevo</button>
+        <h2>👥 Pacientes</h2>
       </div>
-      <label>Buscar paciente</label>
-      <input type="text" id="buscadorPacientes" placeholder="Nombre, apellido o WhatsApp">
-      <div class="patient-list" id="listaPacientes"></div>
+      <div class="card-body">
+        <input
+          type="text"
+          id="searchPacientes"
+          placeholder="Buscar por nombre, apellido o WhatsApp..."
+          style="margin-bottom: 0.5rem;"
+        />
+        <button class="btn btn-primary btn-sm" id="btnNuevoPaciente">+ Nuevo paciente</button>
+        <div class="patient-list" id="listaPacientes"></div>
+      </div>
     </section>
 
     <!-- PANEL CENTRAL: DATOS PACIENTE E INICIO TRATAMIENTO -->
     <section class="card">
       <div class="card-header">
-        <h2>Datos del paciente</h2>
+        <h2>📋 Datos del paciente</h2>
+      </div>
+      <div class="card-body" style="overflow-y: auto;">
         <div class="toolbar">
-          <button class="btn btn-primary btn-sm" id="btnGuardarPaciente">Guardar paciente</button>
-          <button class="btn btn-danger btn-sm" id="btnEliminarPaciente">Eliminar</button>
+          <button class="btn btn-success btn-sm" id="btnGuardarPaciente">💾 Guardar</button>
+          <button class="btn btn-secondary btn-sm" id="btnLimpiarPaciente">🔄 Nuevo</button>
+          <button class="btn btn-danger btn-sm" id="btnEliminarPaciente">🗑️ Eliminar</button>
         </div>
+
+        <div class="section-title">Información personal</div>
+        <div class="row">
+          <div>
+            <label>Nombres</label>
+            <input id="pacNombre" type="text" placeholder="Nombre completo">
+          </div>
+          <div>
+            <label>Apellidos</label>
+            <input id="pacApellidos" type="text" placeholder="Apellidos">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Edad (años)</label>
+            <input id="pacEdad" type="number" min="0" max="120">
+          </div>
+          <div>
+            <label>WhatsApp</label>
+            <input id="pacWhatsapp" type="tel" placeholder="51999999999">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="section-title">Inicio de tratamiento</div>
+
+        <label>Fecha de inicio</label>
+        <input id="tratFechaInicio" type="date">
+
+        <label>Tipo de bracket</label>
+        <select id="tratBracket">
+          <option value="">Seleccione...</option>
+          <option>Metálico</option>
+          <option>Autoligado</option>
+          <option>Estético</option>
+          <option>Invisible</option>
+        </select>
+
+        <label>Prescripción</label>
+        <select id="tratPrescripcion">
+          <option value="">Seleccione...</option>
+          <option>Roth</option>
+          <option>MBT</option>
+          <option>Ricketts</option>
+          <option>Capelloza tipo I</option>
+          <option>Capelloza tipo II</option>
+          <option>Capelloza tipo III</option>
+          <option>Otro</option>
+        </select>
+
+        <div class="row">
+          <div>
+            <label>Tipo de arco</label>
+            <select id="tratTipoArco">
+              <option value="">Seleccione...</option>
+              <option>NiTi</option>
+              <option>TermoNiTi</option>
+              <option>Acero</option>
+            </select>
+          </div>
+          <div>
+            <label>Número de arco</label>
+            <select id="tratNumeroArco">
+              <option value="">Seleccione...</option>
+              <option>0.012</option>
+              <option>0.014</option>
+              <option>0.016</option>
+              <option>0.018</option>
+              <option>0.16x0.16</option>
+              <option>0.16x0.22</option>
+              <option>0.17x0.25</option>
+              <option>0.18x0.25</option>
+              <option>0.19x0.25</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Tubo molar - Tipo</label>
+            <select id="tratTipoTubo">
+              <option value="">Seleccione...</option>
+              <option>Simple</option>
+              <option>Doble</option>
+              <option>Triple</option>
+            </select>
+          </div>
+          <div>
+            <label>Tubo molar - Prescripción</label>
+            <select id="tratPrescTubo">
+              <option value="">Seleccione...</option>
+              <option>Roth</option>
+              <option>Ricketts</option>
+              <option>Edwise</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Aparato ortopédico</label>
+        <select id="tratAparato">
+          <option value="">Sin aparato</option>
+          <option>Frankel I</option>
+          <option>Frankel II</option>
+          <option>Frankel III</option>
+          <option>Bionator clase II</option>
+          <option>Bionator clase III</option>
+          <option>Klammt clase I</option>
+          <option>Klammt clase II</option>
+          <option>Klammt clase III</option>
+          <option>Aparato Oise clase I sin tornillo</option>
+          <option>Aparato Oise clase I con tornillo</option>
+          <option>Aparato Oise clase II sin tornillo</option>
+          <option>Aparato Oise clase II con tornillo</option>
+          <option>Aparato Oise clase III sin tornillo</option>
+          <option>Aparato Oise clase III con tornillo</option>
+          <option>Máscara facial</option>
+          <option>Hyrax</option>
+          <option>Otro</option>
+        </select>
       </div>
-
-      <div class="row">
-        <div>
-          <label>Nombres</label>
-          <input id="pacNombre" type="text">
-        </div>
-        <div>
-          <label>Apellidos</label>
-          <input id="pacApellidos" type="text">
-        </div>
-      </div>
-      <div class="row">
-        <div>
-          <label>Edad</label>
-          <input id="pacEdad" type="number" min="0">
-        </div>
-        <div>
-          <label>WhatsApp</label>
-          <input id="pacWhatsapp" type="tel" placeholder="Ej: 51999999999">
-        </div>
-      </div>
-
-      <div class="divider"></div>
-      <h3>Inicio de tratamiento</h3>
-
-      <div class="row">
-        <div>
-          <label>Fecha de inicio</label>
-          <input id="tratFechaInicio" type="date">
-        </div>
-        <div>
-          <label>Tipo de bracket</label>
-          <select id="tratBracket">
-            <option value="">Seleccione...</option>
-            <option>Metálico</option>
-            <option>Autoligado</option>
-            <option>Estético</option>
-            <option>Invisible</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>Prescripción</label>
-          <select id="tratPrescripcion">
-            <option value="">Seleccione...</option>
-            <option>Roth</option>
-            <option>MBT</option>
-            <option>Ricketts</option>
-            <option>Capelloza tipo I</option>
-            <option>Capelloza tipo II</option>
-            <option>Capelloza tipo III</option>
-            <option>Otro</option>
-          </select>
-        </div>
-        <div>
-          <label>Tipo de arco</label>
-          <select id="tratTipoArco">
-            <option value="">Seleccione...</option>
-            <option>NiTi</option>
-            <option>TermoNiTi</option>
-            <option>Acero</option>
-          </select>
-        </div>
-      </div>
-
-      <label>Número de arco</label>
-      <select id="tratNumeroArco">
-        <option value="">Seleccione...</option>
-        <option>0.012</option>
-        <option>0.014</option>
-        <option>0.016</option>
-        <option>0.018</option>
-        <option>0.16x0.16</option>
-        <option>0.16x0.22</option>
-        <option>0.17x0.25</option>
-        <option>0.18x0.25</option>
-        <option>0.19x0.25</option>
-      </select>
-
-      <div class="row">
-        <div>
-          <label>Tipo de tubo molar</label>
-          <select id="tratTipoTubo">
-            <option value="">Seleccione...</option>
-            <option>Simple</option>
-            <option>Doble</option>
-            <option>Triple</option>
-          </select>
-        </div>
-        <div>
-          <label>Prescripción tubo molar</label>
-          <select id="tratPrescTubo">
-            <option value="">Seleccione...</option>
-            <option>Roth</option>
-            <option>Ricketts</option>
-            <option>Edwise</option>
-          </select>
-        </div>
-      </div>
-
-      <label>Aparato ortopédico</label>
-      <select id="tratAparato">
-        <option value="">Sin aparato</option>
-        <option>Frankel I</option>
-        <option>Frankel II</option>
-        <option>Frankel III</option>
-        <option>Bionator clase II</option>
-        <option>Bionator clase III</option>
-        <option>Klammt clase I</option>
-        <option>Klammt clase II</option>
-        <option>Klammt clase III</option>
-        <option>Aparato Oise clase I</option>
-        <option>Aparato Oise clase II</option>
-        <option>Aparato Oise clase III</option>
-        <option>Máscara facial</option>
-        <option>Hyrax</option>
-        <option>Otro</option>
-      </select>
     </section>
 
-    <!-- PANEL DERECHO: CONTROLES, FOTOS, WHATSAPP, INFORME -->
+    <!-- PANEL DERECHO: CONTROLES, FOTOS, COMUNICACIÓN -->
     <section class="card">
       <div class="card-header">
-        <h2>Controles</h2>
-        <button class="btn btn-primary btn-sm" id="btnNuevoControl">Nuevo control</button>
+        <h2>📸 Controles mensuales</h2>
       </div>
+      <div class="card-body" style="overflow-y: auto;">
+        <button class="btn btn-primary btn-sm" id="btnNuevoControl">+ Nuevo control</button>
 
-      <div class="row">
-        <div>
-          <label>Fecha control</label>
-          <input id="ctrlFecha" type="date">
+        <div class="section-title" style="margin-top: 0.5rem;">Datos del control</div>
+
+        <label>Fecha del control</label>
+        <input id="ctrlFecha" type="date">
+
+        <label>Observaciones</label>
+        <textarea id="ctrlObs" placeholder="Notas clínicas del control..."></textarea>
+
+        <div class="toolbar">
+          <button class="btn btn-success btn-sm" id="btnGuardarControl">💾 Guardar control</button>
+          <button class="btn btn-secondary btn-sm" id="btnLimpiarControl">🔄 Limpiar</button>
         </div>
-        <div>
-          <label>Observaciones</label>
-          <textarea id="ctrlObs" placeholder="Notas del control"></textarea>
+
+        <div class="section-title">📷 Registro fotográfico</div>
+        <div class="toolbar">
+          <button class="btn btn-outline btn-sm" id="btnAbrirCamara">📹 Cámara</button>
+          <button class="btn btn-outline btn-sm" id="btnCapturarFoto">📸 Capturar</button>
+          <button class="btn btn-outline btn-sm" id="btnRecortarFoto">✂️ Recortar</button>
         </div>
+
+        <video id="videoCam" playsinline style="display:none;"></video>
+        <canvas id="canvasFoto"></canvas>
+
+        <div class="photo-grid" id="fotoGrid"></div>
+
+        <div class="section-title">📤 Comunicación</div>
+        <div class="toolbar">
+          <button class="btn btn-primary btn-sm" id="btnWhatsInforme">WhatsApp 📋</button>
+          <button class="btn btn-info btn-sm" id="btnWhatsRecordatorio">WhatsApp 📞</button>
+          <button class="btn btn-outline btn-sm" id="btnImprimirInforme">🖨️ Imprimir</button>
+        </div>
+
+        <div class="section-title">📝 Historial de controles</div>
+        <div class="controls-list" id="listaControles"></div>
       </div>
-
-      <div class="toolbar mt-sm">
-        <button class="btn btn-primary btn-sm" id="btnGuardarControl">Guardar control</button>
-        <button class="btn btn-secondary btn-sm" id="btnLimpiarControl">Limpiar</button>
-      </div>
-
-      <div class="section-title mt">Registro fotográfico</div>
-      <div class="toolbar">
-        <button class="btn btn-outline btn-sm" id="btnAbrirCamara">Abrir cámara</button>
-        <button class="btn btn-outline btn-sm" id="btnCapturarFoto">Capturar</button>
-        <button class="btn btn-outline btn-sm" id="btnRecortarFoto">Recortar última</button>
-      </div>
-      <small class="small-text">Se usarán la cámara del dispositivo y un canvas para capturar y recortar la imagen en el navegador (getUserMedia + canvas). No se envían fotos a servidores externos.[web:19][web:20][web:31]</small>
-
-      <video id="videoCam" autoplay playsinline style="width:100%;max-height:160px;border-radius:.35rem;margin-top:.35rem;display:none;border:1px solid var(--border);"></video>
-      <canvas id="canvasFoto" style="display:none;"></canvas>
-
-      <div class="photo-preview" id="previewFotos"></div>
-
-      <div class="section-title mt">Comunicación</div>
-      <div class="toolbar">
-        <button class="btn btn-primary btn-sm" id="btnWhatsInforme">Enviar informe por WhatsApp</button>
-        <button class="btn btn-secondary btn-sm" id="btnWhatsRecordatorio">Enviar recordatorio cita</button>
-        <button class="btn btn-outline btn-sm" id="btnImprimirInforme">Imprimir informe</button>
-      </div>
-      <small class="small-text">
-        Para WhatsApp se abrirá una pestaña con el esquema <code>https://wa.me/NUMERO?text=...</code> compatible con web y móvil.[web:23]
-      </small>
-
-      <div class="divider"></div>
-      <div class="section-title">Historial de controles</div>
-      <div class="controls-list" id="listaControles"></div>
     </section>
   </div>
 
-  <!-- Modal simple para recorte -->
+  <!-- MODAL PARA RECORTE DE IMÁGENES -->
   <div class="modal-backdrop" id="modalCrop">
     <div class="modal">
-      <h3>Recortar foto</h3>
-      <small class="small-text">Arrastra con el mouse para definir el área de recorte (rectángulo). Luego pulsa "Aplicar recorte".</small>
-      <canvas id="canvasCrop" width="480" height="320"></canvas>
-      <div class="toolbar mt-sm">
-        <button class="btn btn-primary btn-sm" id="btnAplicarRecorte">Aplicar recorte</button>
-        <button class="btn btn-secondary btn-sm" id="btnCancelarRecorte">Cancelar</button>
+      <div class="modal-header">
+        <h3>✂️ Recortar imagen</h3>
+        <button class="modal-close" id="closeCropModal">&times;</button>
+      </div>
+      <div class="crop-info">
+        Arrastra con el mouse para seleccionar el área a recortar (rectángulo verde)
+      </div>
+      <canvas id="canvasCrop" class="crop-canvas"></canvas>
+      <div class="toolbar" style="margin-top: 1rem;">
+        <button class="btn btn-success btn-sm" id="btnAplicarRecorte">✓ Aplicar recorte</button>
+        <button class="btn btn-secondary btn-sm" id="btnCancelarRecorte">✕ Cancelar</button>
       </div>
     </div>
   </div>
 
   <script>
-    // === Estado global ===
+    // ============ ESTADO GLOBAL ============
     const state = {
-      pacientes: [],       // {id, nombre, apellidos, edad, whatsapp, tratamiento:{...}, controles:[{...}]}
+      pacientes: [],
       pacienteActivoId: null,
       controlActivoId: null,
-      github: {
-        owner: "",   // <-- RELLENAR
-        repo: "",    // <-- RELLENAR
-        path: "pacientes-ortho-control.json",
-        token: ""    // <-- RELLENAR (Personal Access Token, opcional)
-      },
       ultimaFotoDataUrl: null,
-      stream: null
+      stream: null,
+      cropState: {
+        dragging: false,
+        startX: 0,
+        startY: 0,
+        endX: 0,
+        endY: 0
+      }
     };
 
+    // ============ UTILIDADES ============
     const $ = (id) => document.getElementById(id);
 
-    // === Utilidades ===
     function generarId() {
       return "p_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
     }
 
-    function formatearFechaIso(dateStr) {
-      if (!dateStr) return "";
+    function formatearFecha(dateStr) {
+      if (!dateStr) return "-";
       const [y, m, d] = dateStr.split("-");
       return `${d}/${m}/${y}`;
     }
 
-    // === Renderizado listado de pacientes ===
+    function mostrarAlerta(msg, tipo = "info") {
+      const color = tipo === "error" ? "#e74a3b" : tipo === "success" ? "#1cc88a" : "#4e73df";
+      alert(msg);
+    }
+
+    // ============ LOCALSTORAGE ============
+    function guardarLocal() {
+      try {
+        localStorage.setItem("orthoControlPacientes", JSON.stringify(state.pacientes));
+      } catch (e) {
+        console.error("Error al guardar en localStorage", e);
+      }
+    }
+
+    function cargarLocal() {
+      try {
+        const data = localStorage.getItem("orthoControlPacientes");
+        if (data) state.pacientes = JSON.parse(data);
+      } catch (e) {
+        console.error("Error al cargar de localStorage", e);
+      }
+    }
+
+    // ============ PACIENTES ============
     function renderPacientes() {
       const cont = $("listaPacientes");
       cont.innerHTML = "";
-      const q = $("buscadorPacientes").value.toLowerCase().trim();
+      const q = $("searchPacientes").value.toLowerCase().trim();
+      
       state.pacientes
         .filter(p => {
           if (!q) return true;
           return (
             (p.nombre || "").toLowerCase().includes(q) ||
             (p.apellidos || "").toLowerCase().includes(q) ||
-            (p.whatsapp || "").toLowerCase().includes(q)
+            (p.whatsapp || "").includes(q)
           );
         })
         .forEach(p => {
           const div = document.createElement("div");
           div.className = "patient-item" + (p.id === state.pacienteActivoId ? " active" : "");
           div.innerHTML = `
-            <div><strong>${p.apellidos || ""}</strong>, ${p.nombre || ""}</div>
-            <div class="small-text">WhatsApp: ${p.whatsapp || "-"}</div>
-            <div class="small-text"><span class="badge">${(p.controles || []).length} controles</span></div>
+            <div class="patient-name">${p.apellidos || ""}, ${p.nombre || ""}</div>
+            <div class="patient-meta">Edad: ${p.edad || "-"} | Tel: ${p.whatsapp || "-"}</div>
+            <div class="patient-meta"><span class="badge">${(p.controles || []).length} controles</span></div>
           `;
           div.onclick = () => {
             state.pacienteActivoId = p.id;
@@ -398,6 +928,7 @@
             cargarPacienteEnFormulario(p);
             renderPacientes();
             renderControles();
+            limpiarFormularioControl();
           };
           cont.appendChild(div);
         });
@@ -413,7 +944,6 @@
       return (pac.controles || []).find(c => c.id === state.controlActivoId) || null;
     }
 
-    // === Formulario paciente ===
     function limpiarFormularioPaciente() {
       $("pacNombre").value = "";
       $("pacApellidos").value = "";
@@ -427,6 +957,7 @@
       $("tratTipoTubo").value = "";
       $("tratPrescTubo").value = "";
       $("tratAparato").value = "";
+      state.pacienteActivoId = null;
     }
 
     function cargarPacienteEnFormulario(p) {
@@ -449,7 +980,7 @@
       return {
         nombre: $("pacNombre").value.trim(),
         apellidos: $("pacApellidos").value.trim(),
-        edad: $("pacEdad").value ? parseInt($("pacEdad").value, 10) : null,
+        edad: $("pacEdad").value ? parseInt($("pacEdad").value) : null,
         whatsapp: $("pacWhatsapp").value.trim(),
         tratamiento: {
           fechaInicio: $("tratFechaInicio").value || "",
@@ -467,9 +998,10 @@
     function guardarPaciente() {
       const datos = leerPacienteDeFormulario();
       if (!datos.nombre || !datos.apellidos) {
-        alert("Debe ingresar al menos nombres y apellidos.");
+        mostrarAlerta("Debe ingresar nombres y apellidos", "error");
         return;
       }
+
       let pac = obtenerPacienteActivo();
       if (!pac) {
         pac = { id: generarId(), controles: [] };
@@ -477,34 +1009,35 @@
         state.pacienteActivoId = pac.id;
       }
       Object.assign(pac, datos);
-      sincronizarLocal();
+      guardarLocal();
       renderPacientes();
-      alert("Paciente guardado.");
+      mostrarAlerta("✓ Paciente guardado", "success");
     }
 
     function eliminarPaciente() {
       const pac = obtenerPacienteActivo();
       if (!pac) {
-        alert("No hay paciente seleccionado.");
+        mostrarAlerta("Seleccione un paciente", "error");
         return;
       }
-      if (!confirm("¿Eliminar este paciente y todos sus controles?")) return;
+      if (!confirm(`¿Eliminar a ${pac.nombre} ${pac.apellidos} y todos sus controles?`)) return;
+
       state.pacientes = state.pacientes.filter(p => p.id !== pac.id);
       state.pacienteActivoId = null;
       state.controlActivoId = null;
       limpiarFormularioPaciente();
       limpiarFormularioControl();
+      guardarLocal();
       renderPacientes();
       renderControles();
-      sincronizarLocal();
     }
 
-    // === Controles ===
+    // ============ CONTROLES ============
     function limpiarFormularioControl() {
       $("ctrlFecha").value = "";
       $("ctrlObs").value = "";
       state.ultimaFotoDataUrl = null;
-      $("previewFotos").innerHTML = "";
+      $("fotoGrid").innerHTML = "";
     }
 
     function renderControles() {
@@ -512,53 +1045,63 @@
       cont.innerHTML = "";
       const pac = obtenerPacienteActivo();
       if (!pac) return;
+
       (pac.controles || []).forEach(c => {
         const div = document.createElement("div");
         div.className = "control-item" + (c.id === state.controlActivoId ? " active" : "");
         div.innerHTML = `
-          <div><strong>${formatearFechaIso(c.fecha) || "Sin fecha"}</strong></div>
-          <div class="small-text">${(c.observaciones || "").slice(0, 60)}</div>
-          <div class="small-text">${(c.fotos || []).length} fotos</div>
+          <div><strong>📅 ${formatearFecha(c.fecha)}</strong></div>
+          <div class="small-text">${(c.observaciones || "").slice(0, 50)}${c.observaciones && c.observaciones.length > 50 ? "..." : ""}</div>
+          <div class="small-text">📸 ${(c.fotos || []).length} foto(s)</div>
         `;
         div.onclick = () => {
           state.controlActivoId = c.id;
           $("ctrlFecha").value = c.fecha || "";
           $("ctrlObs").value = c.observaciones || "";
           renderControles();
-          renderFotosControl(c);
+          renderFotosDelControl(c);
         };
         cont.appendChild(div);
       });
     }
 
-    function renderFotosControl(control) {
-      const cont = $("previewFotos");
+    function renderFotosDelControl(control) {
+      const cont = $("fotoGrid");
       cont.innerHTML = "";
       (control.fotos || []).forEach((dataUrl, idx) => {
-        const img = document.createElement("img");
-        img.src = dataUrl;
-        img.title = `Foto ${idx + 1}`;
-        img.onclick = () => {
-          // Selecciona como última para recortar nuevamente si se desea
-          state.ultimaFotoDataUrl = dataUrl;
-          alert("Foto lista para recorte. Pulsa 'Recortar última'.");
-        };
-        cont.appendChild(img);
+        const div = document.createElement("div");
+        div.className = "photo-item";
+        div.innerHTML = `
+          <img src="${dataUrl}" alt="Foto ${idx + 1}">
+          <button class="photo-delete" onclick="eliminarFotoDelControl(${idx})">✕</button>
+        `;
+        cont.appendChild(div);
       });
+    }
+
+    function eliminarFotoDelControl(idx) {
+      const ctrl = obtenerControlActivo();
+      if (!ctrl || !ctrl.fotos) return;
+      ctrl.fotos.splice(idx, 1);
+      guardarLocal();
+      renderFotosDelControl(ctrl);
     }
 
     function guardarControl() {
       const pac = obtenerPacienteActivo();
       if (!pac) {
-        alert("Primero seleccione o cree un paciente.");
+        mostrarAlerta("Primero cree o seleccione un paciente", "error");
         return;
       }
+
       const fecha = $("ctrlFecha").value;
       const obs = $("ctrlObs").value.trim();
+
       if (!fecha) {
-        alert("Coloque la fecha del control.");
+        mostrarAlerta("Ingrese la fecha del control", "error");
         return;
       }
+
       let control = obtenerControlActivo();
       if (!control) {
         control = { id: generarId(), fotos: [] };
@@ -566,72 +1109,172 @@
         pac.controles.push(control);
         state.controlActivoId = control.id;
       }
+
       control.fecha = fecha;
       control.observaciones = obs;
-      // Si se tomó una nueva foto en este ciclo, agrégala
-      if (state.ultimaFotoDataUrl) {
-        control.fotos = control.fotos || [];
-        if (!control.fotos.includes(state.ultimaFotoDataUrl)) {
-          control.fotos.push(state.ultimaFotoDataUrl);
-        }
-      }
-      sincronizarLocal();
+
+      guardarLocal();
       renderControles();
-      renderFotosControl(control);
-      alert("Control guardado.");
+      mostrarAlerta("✓ Control guardado", "success");
     }
 
-    // === WhatsApp e impresión ===
-    function construirTextoInforme() {
+    // ============ CÁMARA Y FOTOS ============
+    async function abrirCamara() {
+      if (state.stream) {
+        $("videoCam").style.display = "none";
+        state.stream.getTracks().forEach(t => t.stop());
+        state.stream = null;
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        state.stream = stream;
+        const video = $("videoCam");
+        video.srcObject = stream;
+        video.style.display = "block";
+        setTimeout(() => video.play(), 100);
+      } catch (e) {
+        mostrarAlerta("No se pudo acceder a la cámara", "error");
+      }
+    }
+
+    function capturarFoto() {
+      const video = $("videoCam");
+      if (!video || video.style.display === "none") {
+        mostrarAlerta("Abra la cámara primero", "error");
+        return;
+      }
+
+      const canvas = $("canvasFoto");
+      const w = video.videoWidth;
+      const h = video.videoHeight;
+
+      if (!w || !h) {
+        mostrarAlerta("Espere a que la cámara cargue", "error");
+        return;
+      }
+
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.95);
+
+      state.ultimaFotoDataUrl = dataUrl;
+      agregarFotoAlPreview(dataUrl);
+      mostrarAlerta("✓ Foto capturada", "success");
+    }
+
+    function agregarFotoAlPreview(dataUrl) {
+      const cont = $("fotoGrid");
+      const div = document.createElement("div");
+      div.className = "photo-item";
+      const idx = (obtenerControlActivo()?.fotos || []).length;
+      div.innerHTML = `
+        <img src="${dataUrl}" alt="Foto">
+        <button class="photo-delete" onclick="eliminarFotoDelControl(${idx})">✕</button>
+      `;
+      cont.appendChild(div);
+    }
+
+    function abrirModalRecorte() {
+      if (!state.ultimaFotoDataUrl) {
+        mostrarAlerta("Primero capture una foto", "error");
+        return;
+      }
+
+      const modal = $("modalCrop");
+      const canvas = $("canvasCrop");
+      canvas.width = 600;
+      canvas.height = 400;
+
+      const img = new Image();
+      img.onload = () => {
+        const ratio = Math.min(canvas.width / img.width, canvas.height / img.height);
+        const w = img.width * ratio;
+        const h = img.height * ratio;
+        const offsetX = (canvas.width - w) / 2;
+        const offsetY = (canvas.height - h) / 2;
+
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#f0f0f0";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, img.width, img.height, offsetX, offsetY, w, h);
+
+        // Dibujar área de selección inicial
+        state.cropState.startX = offsetX;
+        state.cropState.startY = offsetY;
+        state.cropState.endX = offsetX + w;
+        state.cropState.endY = offsetY + h;
+        drawCropRect(canvas);
+      };
+      img.src = state.ultimaFotoDataUrl;
+      modal.style.display = "flex";
+    }
+
+    function drawCropRect(canvas) {
+      const ctx = canvas.getContext("2d");
+      const x = Math.min(state.cropState.startX, state.cropState.endX);
+      const y = Math.min(state.cropState.startY, state.cropState.endY);
+      const w = Math.abs(state.cropState.endX - state.cropState.startX);
+      const h = Math.abs(state.cropState.endY - state.cropState.startY);
+
+      ctx.strokeStyle = "#22c55e";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, w, h);
+    }
+
+    function cerrarModalRecorte() {
+      $("modalCrop").style.display = "none";
+      state.cropState.dragging = false;
+    }
+
+    // ============ WHATSAPP E IMPRESIÓN ============
+    function construirInforme() {
       const pac = obtenerPacienteActivo();
       const ctrl = obtenerControlActivo();
       if (!pac || !ctrl) return "";
+
       const t = pac.tratamiento || {};
       return (
-        `Informe de control de ortodoncia - OrthoControl%0A` +
-        `Paciente: ${pac.nombre} ${pac.apellidos}%0A` +
-        `Edad: ${pac.edad || "-"} años%0A` +
-        `Fecha inicio: ${formatearFechaIso(t.fechaInicio) || "-"}%0A` +
-        `Tipo bracket: ${t.bracket || "-"}%0A` +
-        `Prescripción: ${t.prescripcion || "-"}%0A` +
-        `Arco: ${t.tipoArco || "-"} ${t.numeroArco || ""}%0A` +
-        `Tubo molar: ${t.tipoTubo || "-"} (${t.prescTubo || "-"})%0A` +
-        `Aparato ortopédico: ${t.aparato || "Ninguno"}%0A%0A` +
-        `Control del ${formatearFechaIso(ctrl.fecha) || "-"}%0A` +
-        `Observaciones: ${ctrl.observaciones || "-"}`
+        `*INFORME DE CONTROL - ORTODONCIA*\n\n` +
+        `*Paciente:* ${pac.nombre} ${pac.apellidos}\n` +
+        `*Edad:* ${pac.edad || "-"} años\n` +
+        `*Contacto:* ${pac.whatsapp || "-"}\n\n` +
+        `*TRATAMIENTO INICIADO:*\n` +
+        `Fecha: ${formatearFecha(t.fechaInicio)}\n` +
+        `Bracket: ${t.bracket || "-"}\n` +
+        `Prescripción: ${t.prescripcion || "-"}\n` +
+        `Arco: ${t.tipoArco} ${t.numeroArco}\n` +
+        `Tubo molar: ${t.tipoTubo} (${t.prescTubo})\n` +
+        `Aparato: ${t.aparato || "Ninguno"}\n\n` +
+        `*CONTROL ${formatearFecha(ctrl.fecha)}*\n` +
+        `Observaciones:\n${ctrl.observaciones || "(Sin observaciones)"}`
       );
     }
 
     function enviarWhatsInforme() {
       const pac = obtenerPacienteActivo();
-      const ctrl = obtenerControlActivo();
-      if (!pac || !ctrl) {
-        alert("Seleccione un paciente y un control.");
+      if (!pac || !pac.whatsapp) {
+        mostrarAlerta("Seleccione un paciente con WhatsApp", "error");
         return;
       }
-      if (!pac.whatsapp) {
-        alert("El paciente no tiene número de WhatsApp registrado.");
-        return;
-      }
-      const txt = construirTextoInforme();
-      const url = `https://wa.me/${encodeURIComponent(pac.whatsapp)}?text=${txt}`;
+
+      const texto = construirInforme();
+      const url = `https://wa.me/${pac.whatsapp}?text=${encodeURIComponent(texto)}`;
       window.open(url, "_blank");
     }
 
     function enviarWhatsRecordatorio() {
       const pac = obtenerPacienteActivo();
-      if (!pac) {
-        alert("Seleccione un paciente.");
+      if (!pac || !pac.whatsapp) {
+        mostrarAlerta("Seleccione un paciente con WhatsApp", "error");
         return;
       }
-      if (!pac.whatsapp) {
-        alert("El paciente no tiene número de WhatsApp registrado.");
-        return;
-      }
-      const mensaje =
-        `Hola ${pac.nombre || ""}, le recordamos su próxima cita de ortodoncia en nuestra clínica. ` +
-        `Por favor confirme su asistencia.`;
-      const url = `https://wa.me/${encodeURIComponent(pac.whatsapp)}?text=${encodeURIComponent(mensaje)}`;
+
+      const texto = `Hola ${pac.nombre}! 👋\n\nLe recordamos su próxima cita de control de ortodoncia. Por favor confirme su asistencia. 📅\n\n¡Gracias!`;
+      const url = `https://wa.me/${pac.whatsapp}?text=${encodeURIComponent(texto)}`;
       window.open(url, "_blank");
     }
 
@@ -639,267 +1282,142 @@
       const pac = obtenerPacienteActivo();
       const ctrl = obtenerControlActivo();
       if (!pac || !ctrl) {
-        alert("Seleccione un paciente y un control.");
+        mostrarAlerta("Seleccione un paciente y un control", "error");
         return;
       }
+
       const t = pac.tratamiento || {};
+      const contenido = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Informe OrthoControl</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; background: white; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .header h1 { color: #4e73df; margin: 0; }
+            .section { margin-bottom: 20px; }
+            .section h2 { color: #2e59d9; font-size: 14px; border-bottom: 2px solid #4e73df; padding-bottom: 5px; }
+            .info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+            .field { margin: 5px 0; }
+            .label { font-weight: bold; color: #2e3338; font-size: 12px; }
+            .value { color: #4a4a4a; }
+            .obs { white-space: pre-wrap; }
+            .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #6b7280; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>🦷 INFORME DE CONTROL - ORTODONCIA</h1>
+            <p style="color: #6b7280; margin: 0;">OrthoControl - Sistema de Gestión</p>
+          </div>
+
+          <div class="section">
+            <h2>DATOS DEL PACIENTE</h2>
+            <div class="info">
+              <div>
+                <div class="field">
+                  <div class="label">Nombre:</div>
+                  <div class="value">${pac.nombre} ${pac.apellidos}</div>
+                </div>
+              </div>
+              <div>
+                <div class="field">
+                  <div class="label">Edad:</div>
+                  <div class="value">${pac.edad || "-"} años</div>
+                </div>
+              </div>
+              <div>
+                <div class="field">
+                  <div class="label">WhatsApp:</div>
+                  <div class="value">${pac.whatsapp || "-"}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>INFORMACIÓN DEL TRATAMIENTO</h2>
+            <div class="info">
+              <div>
+                <div class="field">
+                  <div class="label">Fecha de inicio:</div>
+                  <div class="value">${formatearFecha(t.fechaInicio)}</div>
+                </div>
+                <div class="field">
+                  <div class="label">Tipo de bracket:</div>
+                  <div class="value">${t.bracket || "-"}</div>
+                </div>
+                <div class="field">
+                  <div class="label">Prescripción:</div>
+                  <div class="value">${t.prescripcion || "-"}</div>
+                </div>
+              </div>
+              <div>
+                <div class="field">
+                  <div class="label">Tipo de arco:</div>
+                  <div class="value">${t.tipoArco || "-"}</div>
+                </div>
+                <div class="field">
+                  <div class="label">Número de arco:</div>
+                  <div class="value">${t.numeroArco || "-"}</div>
+                </div>
+                <div class="field">
+                  <div class="label">Tubo molar:</div>
+                  <div class="value">${t.tipoTubo} (${t.prescTubo})</div>
+                </div>
+              </div>
+            </div>
+            <div class="field" style="margin-top: 10px;">
+              <div class="label">Aparato ortopédico:</div>
+              <div class="value">${t.aparato || "Sin aparato"}</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>CONTROL DEL ${formatearFecha(ctrl.fecha)}</h2>
+            <div class="field">
+              <div class="label">Observaciones:</div>
+              <div class="value obs">${ctrl.observaciones || "(Sin observaciones)"}</div>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>Generado por OrthoControl | ${new Date().toLocaleString()}</p>
+          </div>
+        </body>
+        </html>
+      `;
+
       const win = window.open("", "_blank");
-      win.document.write(`
-        <html><head><title>Informe OrthoControl</title></head><body>
-        <h2>Informe de control de ortodoncia</h2>
-        <p><strong>Paciente:</strong> ${pac.nombre} ${pac.apellidos}</p>
-        <p><strong>Edad:</strong> ${pac.edad || "-"} años</p>
-        <p><strong>WhatsApp:</strong> ${pac.whatsapp || "-"}</p>
-        <h3>Tratamiento</h3>
-        <p><strong>Fecha inicio:</strong> ${formatearFechaIso(t.fechaInicio) || "-"}</p>
-        <p><strong>Bracket:</strong> ${t.bracket || "-"}</p>
-        <p><strong>Prescripción:</strong> ${t.prescripcion || "-"}</p>
-        <p><strong>Arco:</strong> ${t.tipoArco || "-"} ${t.numeroArco || ""}</p>
-        <p><strong>Tubo molar:</strong> ${t.tipoTubo || "-"} (${t.prescTubo || "-"})</p>
-        <p><strong>Aparato ortopédico:</strong> ${t.aparato || "Ninguno"}</p>
-        <h3>Control</h3>
-        <p><strong>Fecha:</strong> ${formatearFechaIso(ctrl.fecha) || "-"}</p>
-        <p><strong>Observaciones:</strong><br>${(ctrl.observaciones || "").replace(/\n/g,"<br>")}</p>
-        </body></html>
-      `);
+      win.document.write(contenido);
       win.document.close();
-      win.print();
+      setTimeout(() => win.print(), 250);
     }
 
-    // === Cámara y fotos ===
-    async function abrirCamara() {
-      if (state.stream) return;
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true }); // getUserMedia para cámara.[web:19][web:28]
-        state.stream = stream;
-        const video = $("videoCam");
-        video.style.display = "block";
-        video.srcObject = stream;
-      } catch (e) {
-        alert("No se pudo acceder a la cámara.");
-      }
-    }
-
-    function capturarFoto() {
-      const video = $("videoCam");
-      if (!video || video.style.display === "none") {
-        alert("Primero abra la cámara.");
-        return;
-      }
-      const canvas = $("canvasFoto");
-      const w = video.videoWidth;
-      const h = video.videoHeight;
-      if (!w || !h) {
-        alert("Espere un momento a que cargue la cámara.");
-        return;
-      }
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, w, h); // Captura frame en canvas.[web:19][web:21]
-      const dataUrl = canvas.toDataURL("image/jpeg");
-      state.ultimaFotoDataUrl = dataUrl;
-      agregarFotoPreview(dataUrl);
-      alert("Foto capturada. Puede guardarla con el control.");
-    }
-
-    function agregarFotoPreview(dataUrl) {
-      const cont = $("previewFotos");
-      const img = document.createElement("img");
-      img.src = dataUrl;
-      cont.appendChild(img);
-    }
-
-    // === Recorte de imagen en canvas ===
-    const cropState = {
-      dragging: false,
-      startX: 0,
-      startY: 0,
-      endX: 0,
-      endY: 0,
-      img: null
-    };
-
-    function abrirModalRecorte() {
-      if (!state.ultimaFotoDataUrl) {
-        alert("Primero capture o seleccione una foto.");
-        return;
-      }
-      const modal = $("modalCrop");
-      const canvas = $("canvasCrop");
-      const ctx = canvas.getContext("2d");
-      const img = new Image();
-      img.onload = () => {
-        // Ajuste simple a canvas 480x320 manteniendo proporción
-        const ratio = Math.min(canvas.width / img.width, canvas.height / img.height);
-        const w = img.width * ratio;
-        const h = img.height * ratio;
-        const offsetX = (canvas.width - w) / 2;
-        const offsetY = (canvas.height - h) / 2;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, img.width, img.height, offsetX, offsetY, w, h); // drawImage para recorte escalado.[web:20][web:37]
-        cropState.img = { img, offsetX, offsetY, w, h };
-      };
-      img.src = state.ultimaFotoDataUrl;
-      modal.style.display = "flex";
-    }
-
-    function cerrarModalRecorte() {
-      $("modalCrop").style.display = "none";
-      cropState.dragging = false;
-    }
-
-    function initCanvasCropEvents() {
-      const canvas = $("canvasCrop");
-      const ctx = canvas.getContext("2d");
-
-      function redraw() {
-        if (!cropState.img) return;
-        const { img, offsetX, offsetY, w, h } = cropState.img;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, img.width, img.height, offsetX, offsetY, w, h);
-        if (cropState.dragging || cropState.endX) {
-          const x = Math.min(cropState.startX, cropState.endX);
-          const y = Math.min(cropState.startY, cropState.endY);
-          const rw = Math.abs(cropState.endX - cropState.startX);
-          const rh = Math.abs(cropState.endY - cropState.startY);
-          ctx.strokeStyle = "#22c55e";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(x, y, rw, rh);
-        }
-      }
-
-      canvas.addEventListener("mousedown", (e) => {
-        const rect = canvas.getBoundingClientRect();
-        cropState.dragging = true;
-        cropState.startX = e.clientX - rect.left;
-        cropState.startY = e.clientY - rect.top;
-        cropState.endX = cropState.startX;
-        cropState.endY = cropState.startY;
-        redraw();
-      });
-
-      canvas.addEventListener("mousemove", (e) => {
-        if (!cropState.dragging) return;
-        const rect = canvas.getBoundingClientRect();
-        cropState.endX = e.clientX - rect.left;
-        cropState.endY = e.clientY - rect.top;
-        redraw();
-      });
-
-      canvas.addEventListener("mouseup", () => {
-        cropState.dragging = false;
-        redraw();
-      });
-
-      $("btnAplicarRecorte").onclick = () => {
-        if (!cropState.img) return;
-        const x = Math.min(cropState.startX, cropState.endX);
-        const y = Math.min(cropState.startY, cropState.endY);
-        const rw = Math.abs(cropState.endX - cropState.startX);
-        const rh = Math.abs(cropState.endY - cropState.startY);
-        if (rw < 10 || rh < 10) {
-          alert("Seleccione un área mayor para recortar.");
-          return;
-        }
-        // Obtener la imagen del área recortada
-        const temp = document.createElement("canvas");
-        temp.width = rw;
-        temp.height = rh;
-        const tctx = temp.getContext("2d");
-        tctx.drawImage(canvas, x, y, rw, rh, 0, 0, rw, rh); // Recorte dentro del canvas actual.[web:20][web:31]
-        const dataUrl = temp.toDataURL("image/jpeg");
-        state.ultimaFotoDataUrl = dataUrl;
-        // Actualizar preview
-        $("previewFotos").innerHTML = "";
-        agregarFotoPreview(dataUrl);
-        cerrarModalRecorte();
-        alert("Recorte aplicado. Guarda el control para asociar la foto recortada.");
-      };
-
-      $("btnCancelarRecorte").onclick = cerrarModalRecorte;
-    }
-
-    // === Persistencia local y GitHub ===
-    function sincronizarLocal() {
-      try {
-        localStorage.setItem("orthoControlPacientes", JSON.stringify(state.pacientes));
-      } catch (e) {
-        console.error("Error guardando en localStorage", e);
-      }
-      // OPCIONAL: Llamar a sincronizarGitHub() si quieres que actualice automáticamente
-      // sincronizarGitHub();
-    }
-
-    function cargarDesdeLocal() {
-      try {
-        const txt = localStorage.getItem("orthoControlPacientes");
-        if (txt) {
-          state.pacientes = JSON.parse(txt);
-        }
-      } catch (e) {
-        console.error("Error leyendo localStorage", e);
-      }
-    }
-
-    async function sincronizarGitHub() {
-      const { owner, repo, path, token } = state.github;
-      if (!owner || !repo || !path || !token) return;
-      const apiBase = "https://api.github.com";
-      // 1) Obtener SHA actual del archivo (si existe)
-      let sha = null;
-      const urlGet = `${apiBase}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
-      try {
-        const res = await fetch(urlGet, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          sha = data.sha || null;
-        }
-      } catch (e) {
-        console.error("No se pudo obtener SHA desde GitHub", e);
-      }
-      // 2) Crear contenido base64
-      const json = JSON.stringify({ pacientes: state.pacientes }, null, 2);
-      const contentBase64 = btoa(unescape(encodeURIComponent(json))); // Codificación base64 requerida por API de contenidos.[web:24][web:36]
-      // 3) PUT para crear/actualizar
-      const urlPut = urlGet;
-      const body = {
-        message: "Actualización OrthoControl",
-        content: contentBase64
-      };
-      if (sha) body.sha = sha;
-      try {
-        const res = await fetch(urlPut, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(body)
-        });
-        if (!res.ok) console.error("Error al guardar en GitHub", await res.text());
-      } catch (e) {
-        console.error("Error de red al guardar en GitHub", e);
-      }
-    }
-
-    // === Eventos de UI ===
+    // ============ INICIALIZACIÓN ============
     function initEventos() {
-      $("buscadorPacientes").addEventListener("input", renderPacientes);
+      $("searchPacientes").addEventListener("input", renderPacientes);
       $("btnNuevoPaciente").onclick = () => {
-        state.pacienteActivoId = null;
-        state.controlActivoId = null;
         limpiarFormularioPaciente();
         limpiarFormularioControl();
         renderPacientes();
         renderControles();
       };
       $("btnGuardarPaciente").onclick = guardarPaciente;
+      $("btnLimpiarPaciente").onclick = () => {
+        limpiarFormularioPaciente();
+        renderPacientes();
+      };
       $("btnEliminarPaciente").onclick = eliminarPaciente;
 
       $("btnNuevoControl").onclick = () => {
+        const pac = obtenerPacienteActivo();
+        if (!pac) {
+          mostrarAlerta("Primero seleccione un paciente", "error");
+          return;
+        }
         state.controlActivoId = null;
         limpiarFormularioControl();
         renderControles();
@@ -907,20 +1425,92 @@
       $("btnGuardarControl").onclick = guardarControl;
       $("btnLimpiarControl").onclick = limpiarFormularioControl;
 
+      $("btnAbrirCamara").onclick = abrirCamara;
+      $("btnCapturarFoto").onclick = capturarFoto;
+      $("btnRecortarFoto").onclick = abrirModalRecorte;
+
       $("btnWhatsInforme").onclick = enviarWhatsInforme;
       $("btnWhatsRecordatorio").onclick = enviarWhatsRecordatorio;
       $("btnImprimirInforme").onclick = imprimirInforme;
 
-      $("btnAbrirCamara").onclick = abrirCamara;
-      $("btnCapturarFoto").onclick = capturarFoto;
-      $("btnRecortarFoto").onclick = abrirModalRecorte;
+      // Modal recorte
+      $("closeCropModal").onclick = cerrarModalRecorte;
+      $("btnCancelarRecorte").onclick = cerrarModalRecorte;
+
+      // Eventos del canvas de recorte
+      const canvasCrop = $("canvasCrop");
+      canvasCrop.addEventListener("mousedown", (e) => {
+        state.cropState.dragging = true;
+        const rect = canvasCrop.getBoundingClientRect();
+        state.cropState.startX = e.clientX - rect.left;
+        state.cropState.startY = e.clientY - rect.top;
+        state.cropState.endX = state.cropState.startX;
+        state.cropState.endY = state.cropState.startY;
+      });
+
+      canvasCrop.addEventListener("mousemove", (e) => {
+        if (!state.cropState.dragging) return;
+        const rect = canvasCrop.getBoundingClientRect();
+        state.cropState.endX = e.clientX - rect.left;
+        state.cropState.endY = e.clientY - rect.top;
+
+        // Redibujar
+        const img = new Image();
+        img.src = state.ultimaFotoDataUrl;
+        img.onload = () => {
+          const ctx = canvasCrop.getContext("2d");
+          const ratio = Math.min(canvasCrop.width / img.width, canvasCrop.height / img.height);
+          const w = img.width * ratio;
+          const h = img.height * ratio;
+          const offsetX = (canvasCrop.width - w) / 2;
+          const offsetY = (canvasCrop.height - h) / 2;
+
+          ctx.fillStyle = "#f0f0f0";
+          ctx.fillRect(0, 0, canvasCrop.width, canvasCrop.height);
+          ctx.drawImage(img, 0, 0, img.width, img.height, offsetX, offsetY, w, h);
+          drawCropRect(canvasCrop);
+        };
+      });
+
+      canvasCrop.addEventListener("mouseup", () => {
+        state.cropState.dragging = false;
+      });
+
+      $("btnAplicarRecorte").onclick = () => {
+        const x = Math.min(state.cropState.startX, state.cropState.endX);
+        const y = Math.min(state.cropState.startY, state.cropState.endY);
+        const w = Math.abs(state.cropState.endX - state.cropState.startX);
+        const h = Math.abs(state.cropState.endY - state.cropState.startY);
+
+        if (w < 20 || h < 20) {
+          mostrarAlerta("Seleccione un área mayor", "error");
+          return;
+        }
+
+        const temp = document.createElement("canvas");
+        temp.width = w;
+        temp.height = h;
+        const tctx = temp.getContext("2d");
+        tctx.drawImage(canvasCrop, x, y, w, h, 0, 0, w, h);
+        const dataUrl = temp.toDataURL("image/jpeg", 0.95);
+
+        state.ultimaFotoDataUrl = dataUrl;
+        const ctrl = obtenerControlActivo();
+        if (ctrl) {
+          ctrl.fotos = ctrl.fotos || [];
+          ctrl.fotos.push(dataUrl);
+          guardarLocal();
+          renderFotosDelControl(ctrl);
+        }
+
+        cerrarModalRecorte();
+        mostrarAlerta("✓ Foto recortada y guardada", "success");
+      };
     }
 
-    // === Inicio ===
     document.addEventListener("DOMContentLoaded", () => {
-      cargarDesdeLocal();
+      cargarLocal();
       initEventos();
-      initCanvasCropEvents();
       renderPacientes();
     });
   </script>
